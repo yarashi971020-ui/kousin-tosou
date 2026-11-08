@@ -1,0 +1,487 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="外壁塗装の金額を、スマホで6つの質問に答えるだけでその場でお見せします。営業の電話・訪問はありません。">
+<title>煌真建装 ぬりかえ見積もり</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700;900&display=swap">
+<style>
+html{-webkit-text-size-adjust:100%}
+body{margin:0}
+img{max-width:100%}
+[hidden]{display:none!important}
+/* Layout: a paint-chip book. Each question is a chip; the live estimate sits beside it with a house whose wall takes the chosen color. */
+:root{
+  --paper:#FBFBFA;
+  --ink:#2D3A4F;          /* 濃紺 */
+  --ink-soft:#56627A;
+  --greige:#B8B0A4;
+  --sage:#9DAA94;
+  --line:#DCDAD5;
+  --tile:#F1F0EC;
+  --btn:#2D3A4F;
+  --btn-fg:#FBFBFA;
+  --chip-label:#FFFFFF;
+  --f-body:"Zen Kaku Gothic New","Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --paper:#1B2129;--ink:#E8EAEE;--ink-soft:#A9B1BE;--greige:#9C9488;--sage:#86937D;
+  --line:#343C48;--tile:#232A34;--btn:#D9DEE6;--btn-fg:#1B2129;--chip-label:#2A313B;color-scheme:dark}}
+:root[data-theme="dark"]{
+  --paper:#1B2129;--ink:#E8EAEE;--ink-soft:#A9B1BE;--greige:#9C9488;--sage:#86937D;
+  --line:#343C48;--tile:#232A34;--btn:#D9DEE6;--btn-fg:#1B2129;--chip-label:#2A313B;color-scheme:dark}
+
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{background:var(--paper);color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.8;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.wrap{max-width:1080px;margin:0 auto}
+h1,h2,h3{text-wrap:balance;line-height:1.35;margin:0}
+p{margin:0}
+:focus-visible{outline:3px solid var(--sage);outline-offset:2px}
+
+/* chip strip */
+.strip{display:grid;grid-template-columns:repeat(7,1fr);height:14px;margin-top:20px}
+.strip span:nth-child(1){background:#2D3A4F}.strip span:nth-child(2){background:#5E6B5A}
+.strip span:nth-child(3){background:#9DAA94}.strip span:nth-child(4){background:#B8B0A4}
+.strip span:nth-child(5){background:#D8D2C6}.strip span:nth-child(6){background:#8E7F6E}
+.strip span:nth-child(7){background:#E9E7E2}
+
+header.top{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap;padding-block:14px 0}
+.brand{font-weight:900;font-size:1.05rem;letter-spacing:.04em}
+.area{font-size:.85rem;color:var(--ink-soft)}
+
+.hero{padding-block:40px 24px;display:grid;gap:18px}
+.hero h1{font-size:clamp(1.9rem,5vw,3rem);font-weight:900;letter-spacing:.02em}
+.hero p{color:var(--ink-soft);max-width:36em}
+.promises{display:flex;flex-wrap:wrap;gap:8px 20px;font-size:.92rem;font-weight:500}
+.promises li{list-style:none;display:flex;align-items:center;gap:8px}
+.promises li::before{content:"";width:14px;height:14px;background:var(--greige);display:inline-block}
+.promises{padding:0;margin:0}
+
+/* simulator */
+.sim{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:28px;padding-block:8px 56px}
+@media (max-width:820px){.sim{grid-template-columns:minmax(0,1fr)}}
+
+.book{display:grid;gap:14px;align-content:start}
+.progress{display:flex;gap:6px}
+.progress button{flex:1;height:22px;border:1px solid var(--line);background:var(--tile);cursor:pointer;padding:0}
+.progress button.done{border-color:transparent}
+.progress button[aria-current="step"]{outline:2px solid var(--ink);outline-offset:2px}
+
+.chip{border:1px solid var(--line);background:var(--paper)}
+.chip-swatch{height:96px;position:relative;transition:background-color .35s}
+.chip-code{position:absolute;right:12px;bottom:8px;font-size:.78rem;color:#fff;font-weight:500;letter-spacing:.06em;font-variant-numeric:tabular-nums}
+.chip-body{padding:18px 20px 22px;display:grid;gap:14px}
+.chip-body h2{font-size:1.25rem;font-weight:700}
+.hint{font-size:.85rem;color:var(--ink-soft)}
+.opts{display:grid;gap:8px}
+.opt{display:flex;align-items:center;gap:12px;border:1px solid var(--line);padding:12px 14px;cursor:pointer;font-weight:500}
+.opt input{accent-color:var(--ink);width:18px;height:18px;margin:0}
+.opt:has(input:checked){border-color:var(--ink);background:var(--tile)}
+.opt small{display:block;font-weight:400;color:var(--ink-soft);font-size:.82rem;line-height:1.5}
+.tsubo{display:flex;align-items:baseline;gap:10px}
+.tsubo input[type=number]{font:inherit;font-size:2.2rem;font-weight:900;width:4.2em;padding:4px 8px;border:1px solid var(--line);background:var(--paper);color:var(--ink);font-variant-numeric:tabular-nums}
+.tsubo span{font-weight:700}
+input[type=range]{width:100%;accent-color:var(--ink)}
+.nav{display:flex;justify-content:space-between;gap:10px}
+.btn{font:inherit;font-weight:700;border:1px solid var(--btn);background:var(--btn);color:var(--btn-fg);padding:12px 22px;cursor:pointer}
+.btn.ghost{background:transparent;color:var(--ink);border-color:var(--line)}
+.btn[disabled]{opacity:.35;cursor:default}
+
+/* result */
+.result{border:1px solid var(--line);background:var(--tile);padding:22px;display:grid;gap:16px;align-content:start}
+.result .label{font-size:.9rem;color:var(--ink-soft);font-weight:500}
+.price{font-size:clamp(2.2rem,6vw,3.2rem);font-weight:900;line-height:1.1;font-variant-numeric:tabular-nums;letter-spacing:.01em}
+.price small{font-size:.38em;font-weight:700;margin-left:4px}
+.price.wait{color:var(--line)}
+.price.pop{animation:pop .5s cubic-bezier(.2,1.4,.4,1)}
+@keyframes pop{0%{transform:scale(.7);opacity:0}100%{transform:scale(1);opacity:1}}
+.dura{font-size:.95rem;font-weight:500}
+.more summary{font-size:.92rem}
+.more table{margin-top:8px}
+.house{width:100%;max-width:340px;height:auto;justify-self:center}
+.colors{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.colors button{width:34px;height:34px;border:2px solid var(--paper);outline:1px solid var(--line);cursor:pointer;padding:0}
+.colors button[aria-pressed="true"]{outline:2px solid var(--ink)}
+.colors .cname{font-size:.85rem;color:var(--ink-soft);margin-left:4px}
+table{width:100%;border-collapse:collapse;font-size:.9rem;font-variant-numeric:tabular-nums}
+td{padding:7px 0;border-bottom:1px solid var(--line)}
+td:last-child{text-align:right;white-space:nowrap}
+tr.total td{font-weight:700;border-bottom:none}
+.fine{font-size:.8rem;color:var(--ink-soft);line-height:1.7}
+
+/* sections */
+section.block{padding-block:56px;border-top:1px solid var(--line);display:grid;gap:22px}
+section.block h2{font-size:clamp(1.4rem,3.4vw,1.9rem);font-weight:900}
+.lead{color:var(--ink-soft);max-width:38em}
+.prices{overflow-x:auto}
+.prices table{min-width:520px}
+.prices th{text-align:left;font-weight:700;font-size:.85rem;color:var(--ink-soft);padding:8px 0;border-bottom:2px solid var(--ink)}
+.prices th:last-child{text-align:right}
+.reasons{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:28px 32px}
+@media (max-width:560px){.reasons{grid-template-columns:minmax(0,1fr)}}
+.reasons div{display:grid;gap:6px;padding-left:16px;border-left:8px solid var(--c)}
+.reasons b{font-size:1.08rem}
+.reasons p{color:var(--ink-soft);font-size:.92rem}
+.flow{list-style:none;padding:0;margin:0;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;counter-reset:f}
+@media (max-width:820px){.flow{grid-template-columns:minmax(0,1fr)}}
+.flow li{counter-increment:f;display:grid;gap:6px;padding-top:12px;border-top:6px solid var(--c)}
+.flow li::before{content:counter(f);font-weight:900;font-size:1.4rem}
+.flow b{font-size:1rem}
+.flow span{font-size:.88rem;color:var(--ink-soft);line-height:1.7}
+.warranty{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+@media (max-width:560px){.warranty{grid-template-columns:minmax(0,1fr)}}
+.wcard{border:1px solid var(--line);display:grid}
+.wcard .sw{height:56px}
+.wcard div{padding:16px 18px;display:grid;gap:2px}
+.wcard strong{font-size:2rem;font-weight:900;line-height:1.2}
+details{border-bottom:1px solid var(--line);padding-block:14px}
+summary{font-weight:700;cursor:pointer}
+details p{margin-top:8px;color:var(--ink-soft);max-width:40em}
+
+form{display:grid;gap:14px;max-width:560px}
+form label{display:grid;gap:6px;font-weight:500;font-size:.95rem}
+form input,form select{font:inherit;padding:10px 12px;border:1px solid var(--line);background:var(--paper);color:var(--ink)}
+.summary-box{border:1px solid var(--line);background:var(--tile);padding:14px 16px;font-size:.9rem}
+.ok{border-left:6px solid var(--sage);padding:12px 16px;background:var(--tile)}
+footer{padding-block:40px 56px;border-top:1px solid var(--line);font-size:.88rem;color:var(--ink-soft);display:grid;gap:4px}
+footer b{color:var(--ink);font-size:1rem}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header class="top">
+    <span class="brand">煌真建装</span>
+    <span class="area">対応エリア：愛知県内（お気軽にご相談ください）</span>
+  </header>
+  <div class="strip" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+
+  <div class="hero">
+    <h1>外壁塗装の金額、<br>先にお見せします。</h1>
+    <p>営業マンは来ません。6つの質問に答えると、塗り替えの金額の目安がその場で出ます。正式な見積もりがほしいときは、申し込むだけ。日程の調整も立ち会いもなく、職人が現地を確認して見積書をお送りします。</p>
+    <ul class="promises">
+      <li>営業の電話・訪問なし</li>
+      <li>金額はWebですぐ分かる</li>
+      <li>外壁は最長10年保証</li>
+    </ul>
+  </div>
+
+  <div class="sim" id="estimate">
+    <div class="book">
+      <div class="progress" id="progress" aria-label="質問の進み具合"></div>
+      <div class="chip">
+        <div class="chip-swatch" id="swatch"><span class="chip-code" id="code"></span></div>
+        <div class="chip-body" id="step"></div>
+      </div>
+      <div class="nav">
+        <button class="btn ghost" id="prev" type="button">戻る</button>
+        <button class="btn" id="next" type="button">次へ</button>
+      </div>
+    </div>
+
+    <aside class="result" aria-live="polite">
+      <span class="label" id="rlabel">質問に答えて「金額を知る」を押すと、ここに金額が出ます</span>
+      <div class="price wait" id="price">◯◯万〜◯◯万円</div>
+      <p class="dura" id="dura" hidden></p>
+      <svg class="house" viewBox="0 0 320 220" role="img" aria-label="塗り替え後のイメージ">
+        <rect x="0" y="206" width="320" height="14" fill="var(--line)"/>
+        <polygon points="40,96 160,22 280,96" fill="#4A4F57"/>
+        <rect id="wall" x="58" y="94" width="204" height="112" fill="#B8B0A4"/>
+        <rect x="58" y="146" width="204" height="4" fill="#00000022"/>
+        <rect x="82" y="108" width="36" height="28" fill="#DDE6EE" stroke="#FFFFFF" stroke-width="3"/>
+        <rect x="142" y="108" width="36" height="28" fill="#DDE6EE" stroke="#FFFFFF" stroke-width="3"/>
+        <rect x="202" y="108" width="36" height="28" fill="#DDE6EE" stroke="#FFFFFF" stroke-width="3"/>
+        <rect x="82" y="160" width="56" height="30" fill="#DDE6EE" stroke="#FFFFFF" stroke-width="3"/>
+        <rect x="186" y="156" width="34" height="50" fill="#6B5B4B"/>
+      </svg>
+      <div class="colors" id="colors" aria-label="外壁の色を試す"></div>
+      <div id="afterMore" hidden style="display:grid;gap:14px">
+        <a class="btn" href="#reserve" style="text-align:center;text-decoration:none">詳しく知りたい方はこちら</a>
+        <p class="fine">この金額は目安です。正式な金額は、現地で外壁の傷み具合や面積を確認してからお出しします。延床面積から外壁の面積を計算しているため、建物の形によって前後します。</p>
+        <table id="breakdown" hidden></table>
+      </div>
+    </aside>
+  </div>
+
+  <section class="block">
+    <h2>安くできる理由</h2>
+    <p class="lead">塗料や手間を削るのではなく、工事以外にかかるお金を削っています。</p>
+    <div class="reasons">
+      <div style="--c:#2D3A4F"><b>営業マンがいません</b><p>営業の人件費や歩合がかからないぶん、工事の金額に上乗せしていません。</p></div>
+      <div style="--c:#5E6B5A"><b>職人が直接うかがいます</b><p>下請けに回さないので、間に入る会社の手数料がかかりません。</p></div>
+      <div style="--c:#9DAA94"><b>見積もりをWebで出しています</b><p>最初の見積もりはこのページで完結。見積もりのための訪問や事務の手間を減らしています。</p></div>
+      <div style="--c:#B8B0A4"><b>広告はチラシだけ</b><p>テレビCMやショールームにお金をかけず、その分を価格に回しています。</p></div>
+    </div>
+  </section>
+
+  <section class="block">
+    <h2>ご依頼の流れ</h2>
+    <ol class="flow">
+      <li style="--c:#2D3A4F"><b>金額の目安を見る</b><span>チラシのQRコードから、このページで質問に答えます。</span></li>
+      <li style="--c:#5E6B5A"><b>正式な見積もりを申し込む</b><span>住所とご連絡先を入れるだけ。日程の調整はいりません。</span></li>
+      <li style="--c:#9DAA94"><b>職人が現地調査</b><span>職人がうかがい、外壁・屋根の傷みと面積を確認します。立ち合いは必要ございません。</span></li>
+      <li style="--c:#B8B0A4"><b>見積書をお送りします</b><span>調査した内容で正式な見積書を作り、メールか郵送でお送りします。</span></li>
+      <li style="--c:#8E7F6E"><b>ご契約・工事</b><span>見積書に納得いただけたらご連絡ください。足場の設置から塗装、片付けまで行います。</span></li>
+    </ol>
+  </section>
+
+  <section class="block">
+    <h2>外壁塗装の保証</h2>
+    <p class="lead">塗膜の剥がれや膨れが当社の施工が原因で起きた場合、保証期間内は無償で補修します。保証書をお渡しします。</p>
+    <div class="warranty">
+      <div class="wcard"><div class="sw" style="background:#2D3A4F"></div><div><span>無機塗料</span><strong>10年保証</strong><span class="hint">耐用年数 約20年</span></div></div>
+      <div class="wcard"><div class="sw" style="background:#9DAA94"></div><div><span>シリコンラジカル塗料</span><strong>7年保証</strong><span class="hint">耐用年数 約13年</span></div></div>
+    </div>
+  </section>
+
+  <section class="block">
+    <h2>よくある質問</h2>
+    <div>
+      <details><summary>営業の電話や訪問は来ますか？</summary><p>来ません。ご連絡するのは、お申し込みいただいた方へ見積書をお送りするときだけです。見積書を見てお断りいただいても、その後の連絡はしません。</p></details>
+      <details><summary>現地調査のとき、家にいなくて大丈夫ですか？</summary><p>はい。日程の調整も立ち会いもいりません。職人が外から外壁・屋根の状態と面積を確認します。確認のために、敷地に入らせていただく場合があります。</p></details>
+      <details><summary>どの地域まで来てもらえますか？</summary><p>愛知県内を中心にうかがっています。まずは正式な見積もりのお申し込みからご相談ください。</p></details>
+      <details><summary>目安の金額と正式な金額は変わりますか？</summary><p>変わることがあります。ひび割れの量や付帯部の長さは現地でしか分からないためです。正式なお見積もりでは、どの項目がなぜ変わったかを書いてお渡しします。</p></details>
+      <details><summary>無機塗料とシリコンラジカル塗料はどちらがいいですか？</summary><p>耐用年数は、シリコンラジカル塗料が約13年、無機塗料が約20年です。コスパよく塗り替えたいならシリコンラジカル塗料、長く住む予定で塗り替えの回数を減らしたいなら無機塗料が向いています。迷ったら、見積書が届いたあとにお気軽にご相談ください。</p></details>
+    </div>
+  </section>
+
+  <section class="block" id="reserve">
+    <h2>正式な見積もりのお申し込み</h2>
+    <p class="lead">日程の調整も立ち会いもいりません。お申し込みのあと、職人が現地を確認して、見積書をお送りします。見積書をお送りする以外の連絡はしません。</p>
+    <form id="form" novalidate>
+      <div class="summary-box" id="sendSummary"></div>
+      <label for="fname">お名前<input id="fname" autocomplete="name" required></label>
+      <label for="ftel">電話番号<input id="ftel" type="tel" autocomplete="tel" required></label>
+      <label for="faddr">住所<input id="faddr" autocomplete="street-address" required></label>
+      <label for="frecv">見積書の受け取り方<select id="frecv"><option>メール</option><option>郵送</option></select></label>
+      <label for="fmail">メールアドレス（メールで受け取る場合）<input id="fmail" type="email" autocomplete="email"></label>
+      <p class="fine" id="formMsg" role="alert"></p>
+      <button class="btn" type="submit">見積もりを申し込む</button>
+      <p class="fine">※試作版のため、まだ送信先はつながっていません。</p>
+    </form>
+  </section>
+
+  <footer>
+    <b>煌真建装</b>
+    <span>外壁・屋根塗装　対応エリア：愛知県内（お気軽にご相談ください）</span>
+    <span>TEL 090-3857-8745</span>
+  </footer>
+</div>
+
+<script>
+/* ===== 記録の送り先 =====
+   Apps Scriptで発行した「ウェブアプリのURL」を "" の中に貼ります。空のあいだは何も送りません */
+const LOG_URL = "https://script.google.com/macros/s/AKfycby87Aj61_2_zclPZ80zonMNxHzvNXIFXFU9sEQghYC-uF84ifgOk2A2m5SZy6bbyANrHg/exec";
+const SRC = (()=>{ try{ const s = new URLSearchParams(location.search).get("src") || "direct"; return /^[a-z0-9-]{1,30}$/.test(s) ? s : "direct"; }catch(_){ return "direct"; } })();
+function sendLog(data){
+  if (!LOG_URL) return;
+  try{
+    fetch(LOG_URL, { method:"POST", mode:"no-cors", headers:{ "Content-Type":"text/plain;charset=utf-8" },
+      body: JSON.stringify(Object.assign({ src: SRC }, data)) }).catch(()=>{});
+  }catch(_){}
+}
+(function logVisit(){
+  let seen = false;
+  try{ seen = sessionStorage.getItem("visited") === "1"; sessionStorage.setItem("visited","1"); }catch(_){}
+  if (!seen) sendLog({ type:"visit", device: /Mobi|Android|iPhone/i.test(navigator.userAgent) ? "スマホ" : "PC" });
+})();
+let lastEstimate = null;
+
+/* ===== 料金設定（吉川さんが変えるのはここだけ） =====
+   「仮」と書いた数字は、現場の数字に置きかえてください */
+const P = {
+  wallFactor: 1.2,      // 仮：外壁面積 = 延床面積(㎡) × この数字
+  paintRatio: 0.92,     // 仮：窓などを除いた塗る面積の割合
+  paint: {
+    silicon: { name:"シリコンラジカル塗料", unit:3600, years:7, life:"約13年" },  // 下塗り+中塗り+上塗り（円/㎡）、保証年数、耐用年数
+    muki:    { name:"無機塗料",             unit:4800, years:10, life:"約20年" }
+  },
+  scaffold: 1000, scaffoldMin: 150000, floor3: 1.3, // 足場（円/外壁㎡）、最低額、3階建ての倍率（仮）
+  wash: 150,            // 高圧洗浄（円/㎡）
+  futai: 700,           // 付帯部塗装（円/外壁㎡）仮
+  sealRatio: 0.63, seal: 1500, // シーリング長さ = 外壁㎡ × 0.63（仮）、単価（円/m）
+  mortarRepair: 50000,  // モルタル壁のひび補修 一式
+  crack: 50000,         // ひび割れが気になる場合の補修 一式
+  roofRatio: 0.65, roof: 1750, // 屋根面積 = 延床㎡ × 0.65（仮）、屋根塗装（円/㎡）
+  balcony: 90000,       // バルコニー防水 一式
+  fixed: 100000,        // 養生費＋ゴミ処分費
+  extra: 50000,         // 全体の上乗せ（税込）。内訳では「養生・ゴミ処分・諸経費」に含める
+  low: 0.95, high: 1.08 // 目安の幅
+};
+const TSUBO = 3.3058;
+
+const S = { tsubo:30, floors:"2", paint:"silicon", wall:"siding", symptom:"fade", roof:false, balcony:true };
+
+const STEPS = [
+  { key:"tsubo", title:"延床面積は何坪ですか？", hint:"1階と2階を合わせた広さです。分からなければ、だいたいで大丈夫です。", color:"#2D3A4F", code:"No.1 延床", type:"tsubo" },
+  { key:"floors", title:"何階建てですか？", color:"#5E6B5A", code:"No.2 階数", type:"radio",
+    opts:[["1","平屋"],["2","2階建て"],["3","3階建て","足場が高くなります"]] },
+  { key:"paint", title:"どちらの塗料にしますか？", color:"#9DAA94", code:"No.3 塗料", type:"radio",
+    opts:[["silicon","シリコンラジカル塗料","コスパよくやりたい方に。耐用年数約13年・外壁7年保証"],["muki","無機塗料","長く住む方に。耐用年数約20年・外壁10年保証"]] },
+  { key:"wall", title:"外壁の種類は？", color:"#B8B0A4", code:"No.4 外壁", type:"radio",
+    opts:[["siding","サイディング","板を張り合わせた壁。継ぎ目にゴムのような目地があります"],["mortar","モルタル","継ぎ目のない、塗り壁の外壁"],["unknown","分からない","サイディングとして計算します"]] },
+  { key:"symptom", title:"気になっていることは？", color:"#8E7F6E", code:"No.5 症状", type:"radio",
+    opts:[["none","特にない","築10年前後の点検がわりに"],["fade","色あせ・触ると白い粉がつく"],["crack","ひび割れ・目地の割れがある","補修費を含めて計算します"]] },
+  { key:"extra", title:"一緒に頼みたい工事は？", hint:"足場を一度で済ませると、別々に頼むより安くなります。", color:"#6F7A8C", code:"No.6 追加", type:"check",
+    opts:[["roof","屋根の塗装"],["balcony","バルコニーの防水"]] }
+];
+
+const WALLS = [["#B8B0A4","グレージュ"],["#2D3A4F","濃紺"],["#9DAA94","セージ"],["#E9E7E2","白磁"],["#8E7F6E","ブラウン"],["#5E6B5A","モスグリーン"]];
+
+let cur = 0;
+const yen = n => Math.round(n).toLocaleString("ja-JP") + "円";
+
+function calc(){
+  const floorM2 = S.tsubo * TSUBO;
+  const wall = floorM2 * P.wallFactor;
+  const paint = P.paint[S.paint];
+  const rows = [];
+  rows.push([`外壁塗装（${paint.name}）`, wall * P.paintRatio * paint.unit]);
+  let sc = Math.max(wall * P.scaffold, P.scaffoldMin);
+  if (S.floors === "3") sc *= P.floor3;
+  rows.push(["足場", sc]);
+  rows.push(["高圧洗浄", wall * P.wash]);
+  rows.push(["付帯部（雨樋など）の塗装", wall * P.futai]);
+  if (S.wall === "mortar") rows.push(["ひび割れ補修（モルタル）", P.mortarRepair]);
+  else rows.push(["目地のシーリング打ち替え", wall * P.sealRatio * P.seal]);
+  if (S.symptom === "crack") rows.push(["ひび割れ・目地の補修", P.crack]);
+  if (S.roof) rows.push(["屋根の塗装", floorM2 * P.roofRatio * P.roof]);
+  if (S.balcony) rows.push(["バルコニー防水", P.balcony]);
+  rows.push(["養生・ゴミ処分・諸経費", P.fixed + P.extra / 1.1]);
+  const net = rows.reduce((a,r)=>a+r[1],0);
+  const gross = net * 1.1;
+  return { rows, net, gross, wall,
+    lo: Math.floor(gross*P.low/10000), hi: Math.ceil(gross*P.high/10000), paint };
+}
+
+let revealed = false;
+const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+/* 回答を変えたら金額をいったん隠す */
+function renderResult(){
+  if (!revealed) return;
+  revealed = false;
+  const pr = document.getElementById("price");
+  pr.className = "price wait"; pr.textContent = "◯◯万〜◯◯万円";
+  document.getElementById("rlabel").textContent = "回答が変わりました。もう一度「金額を知る」を押してください";
+  document.getElementById("dura").hidden = true;
+  document.getElementById("afterMore").hidden = true;
+  document.getElementById("sendSummary").innerHTML = "見積もりがまだです。上の質問に答えて「金額を知る」を押してください。";
+}
+
+function reveal(){
+  const r = calc();
+  revealed = true;
+  const label = (k, v) => { const o = STEPS.find(s=>s.key===k).opts.find(x=>x[0]===v); return o ? o[1] : v; };
+  lastEstimate = { tsubo:S.tsubo, floors:label("floors",S.floors), paint:r.paint.name, wall:label("wall",S.wall),
+    symptom:label("symptom",S.symptom), roof:S.roof?"あり":"なし", balcony:S.balcony?"あり":"なし", lo:r.lo, hi:r.hi };
+  sendLog(Object.assign({ type:"estimate" }, lastEstimate));
+  const pr = document.getElementById("price");
+  document.getElementById("rlabel").textContent = "あなたのお家の塗り替え費用の目安（税込）";
+  pr.className = "price";
+  void pr.offsetWidth; pr.classList.add("pop");
+  const show = (lo,hi)=>{ pr.innerHTML = `${lo}万〜${hi}万円<small>税込</small>`; };
+  if (reduce) show(r.lo, r.hi);
+  else {
+    const t0 = performance.now(), D = 900;
+    const tick = now => { const k = Math.min(1,(now-t0)/D), e = 1-Math.pow(1-k,3);
+      show(Math.round(r.lo*e), Math.round(r.hi*e)); if (k<1) requestAnimationFrame(tick); };
+    requestAnimationFrame(tick);
+  }
+  const d = document.getElementById("dura");
+  d.textContent = `${r.paint.name}：耐用年数${r.paint.life}・外壁${r.paint.years}年保証`;
+  d.hidden = false;
+  document.getElementById("breakdown").innerHTML = r.rows.map(x=>`<tr><td>${x[0]}</td><td>${yen(x[1])}</td></tr>`).join("") +
+    `<tr class="total"><td>合計（税抜）</td><td>${yen(r.net)}</td></tr>`;
+  document.getElementById("afterMore").hidden = false;
+  document.getElementById("sendSummary").innerHTML =
+    `<b>見積もり内容</b><br>延床${S.tsubo}坪・${STEPS[1].opts.find(o=>o[0]===S.floors)[1]}・${r.paint.name}<br>目安：${r.lo}万〜${r.hi}万円（税込）`;
+  if (matchMedia("(max-width:820px)").matches) document.querySelector(".result").scrollIntoView({behavior: reduce?"auto":"smooth", block:"start"});
+}
+
+function renderStep(){
+  const s = STEPS[cur];
+  document.getElementById("swatch").style.backgroundColor = s.color;
+  document.getElementById("code").textContent = s.code;
+  let h = `<h2>${s.title}</h2>` + (s.hint ? `<p class="hint">${s.hint}</p>` : "");
+  if (s.type === "tsubo"){
+    h += `<div class="tsubo"><input id="tsuboN" type="number" min="10" max="120" inputmode="numeric" value="${S.tsubo}" aria-label="延床面積（坪）"><span>坪</span></div>
+          <input id="tsuboR" type="range" min="15" max="70" value="${Math.min(70,Math.max(15,S.tsubo))}" aria-label="延床面積のスライダー">
+          <p class="hint">${S.tsubo}坪 ＝ 約${Math.round(S.tsubo*TSUBO)}㎡。外壁はその約${P.wallFactor}倍で計算します。</p>`;
+  } else {
+    const multi = s.type === "check";
+    h += `<div class="opts">` + s.opts.map(([v,l,sub])=>{
+      const checked = multi ? S[v] : S[s.key] === v;
+      return `<label class="opt"><input type="${multi?"checkbox":"radio"}" name="${s.key}" value="${v}" ${checked?"checked":""}><span>${l}${sub?`<small>${sub}</small>`:""}</span></label>`;
+    }).join("") + `</div>`;
+  }
+  const el = document.getElementById("step");
+  el.innerHTML = h;
+  if (s.type === "tsubo"){
+    const n = el.querySelector("#tsuboN"), rg = el.querySelector("#tsuboR"), hint = el.querySelectorAll(".hint")[1];
+    const set = v => { v = Math.max(10, Math.min(120, +v || 0)); S.tsubo = v; hint.textContent = `${v}坪 ＝ 約${Math.round(v*TSUBO)}㎡。外壁はその約${P.wallFactor}倍で計算します。`; renderResult(); };
+    n.addEventListener("input", ()=>{ set(n.value); rg.value = S.tsubo; });
+    rg.addEventListener("input", ()=>{ n.value = rg.value; set(rg.value); });
+  } else {
+    el.querySelectorAll("input").forEach(i=>i.addEventListener("change",()=>{
+      if (s.type === "check") S[i.value] = i.checked; else S[s.key] = i.value;
+      renderResult();
+    }));
+  }
+  document.getElementById("prev").disabled = cur === 0;
+  const nx = document.getElementById("next");
+  nx.textContent = cur === STEPS.length-1 ? "金額を知る" : "次へ";
+  renderProgress();
+}
+
+function renderProgress(){
+  const p = document.getElementById("progress");
+  p.innerHTML = STEPS.map((s,i)=>`<button type="button" aria-label="${s.code}" ${i===cur?'aria-current="step"':""} class="${i<=cur?"done":""}" style="${i<=cur?`background:${s.color}`:""}"></button>`).join("");
+  p.querySelectorAll("button").forEach((b,i)=>b.addEventListener("click",()=>{cur=i;renderStep();}));
+}
+
+document.getElementById("prev").addEventListener("click",()=>{ if(cur>0){cur--;renderStep();} });
+document.getElementById("next").addEventListener("click",()=>{
+  if (cur < STEPS.length-1){ cur++; renderStep(); }
+  else reveal();
+});
+
+/* wall color */
+const cw = document.getElementById("colors");
+cw.innerHTML = WALLS.map(([c,n],i)=>`<button type="button" style="background:${c}" aria-pressed="${i===0}" aria-label="${n}" data-c="${c}" data-n="${n}"></button>`).join("") + `<span class="cname" id="cname">グレージュ</span>`;
+cw.querySelectorAll("button").forEach(b=>b.addEventListener("click",()=>{
+  cw.querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed","false"));
+  b.setAttribute("aria-pressed","true");
+  document.getElementById("wall").setAttribute("fill", b.dataset.c);
+  document.getElementById("cname").textContent = b.dataset.n;
+}));
+
+/* form */
+document.getElementById("form").addEventListener("submit", e=>{
+  e.preventDefault();
+  const msg = document.getElementById("formMsg");
+  const name = fname.value.trim(), tel = ftel.value.trim(), addr = faddr.value.trim();
+  if (!name || !tel || !addr){ msg.textContent = "お名前・電話番号・住所を入力してください。"; return; }
+  const recv = frecv.value, mail = fmail.value.trim();
+  if (recv === "メール" && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(mail)){ msg.textContent = "メールで受け取る場合は、メールアドレスを入力してください。郵送でよければ、受け取り方を「郵送」にしてください。"; return; }
+  msg.textContent = "";
+  const est = lastEstimate || {};
+  sendLog({ type:"reserve", name, tel, addr, day: recv === "メール" ? `メール：${mail}` : "郵送", tsubo: est.tsubo || "", paint: est.paint || "",
+    range: est.lo ? `${est.lo}〜${est.hi}` : "",
+    floors: est.floors || "", wall: est.wall || "", symptom: est.symptom || "", roof: est.roof || "", balcony: est.balcony || "" });
+  const safe = name.replace(/[&<>"']/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+  e.target.innerHTML = `<div class="ok"><b>お申し込みを受け付けました</b><br>${safe}様、ありがとうございます。職人が現地を確認したあと、見積書を${recv === "メール" ? "メール" : "郵送"}でお送りします。立ち合いは必要ございません。</div>`;
+});
+
+renderStep();
+document.getElementById("sendSummary").innerHTML = "見積もりがまだです。上の質問に答えて「金額を知る」を押してください。";
+</script>
+
+</body>
+</html>
