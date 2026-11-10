@@ -145,6 +145,12 @@ details p{margin-top:8px;color:var(--ink-soft);max-width:40em}
 
 form{display:grid;gap:14px;max-width:560px}
 form label{display:grid;gap:6px;font-weight:500;font-size:.95rem}
+form label.check{display:flex;align-items:flex-start;gap:10px;font-size:.92rem;line-height:1.6}
+form label.check input{width:20px;height:20px;margin:2px 0 0;accent-color:var(--ink);flex-shrink:0}
+form a{color:var(--ink)}
+.hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
+.policy{display:grid;gap:10px;max-width:42em;font-size:.92rem;color:var(--ink-soft)}
+.policy b{color:var(--ink)}
 form input,form select{font:inherit;padding:10px 12px;border:1px solid var(--line);background:var(--paper);color:var(--ink)}
 .summary-box{border:1px solid var(--line);background:var(--tile);padding:14px 16px;font-size:.9rem}
 .ok{border-left:6px solid var(--sage);padding:12px 16px;background:var(--tile)}
@@ -261,10 +267,24 @@ footer b{color:var(--ink);font-size:1rem}
       <label for="faddr">住所<input id="faddr" autocomplete="street-address" required></label>
       <label for="frecv">見積書の受け取り方<select id="frecv"><option>メール</option><option>郵送</option></select></label>
       <label for="fmail">メールアドレス（メールで受け取る場合）<input id="fmail" type="email" autocomplete="email"></label>
+      <div class="hp" aria-hidden="true"><label for="fsite">この欄は空のままにしてください<input id="fsite" tabindex="-1" autocomplete="off"></label></div>
+      <label class="check" for="fagree"><input id="fagree" type="checkbox"><span><a href="#privacy">個人情報の取り扱い</a>に同意します</span></label>
+      <label class="check" for="fenter"><input id="fenter" type="checkbox"><span>現地調査のため、職人が敷地に入ることに同意します</span></label>
       <p class="fine" id="formMsg" role="alert"></p>
       <button class="btn" type="submit">見積もりを申し込む</button>
-      <p class="fine">※試作版のため、まだ送信先はつながっていません。</p>
     </form>
+  </section>
+
+  <section class="block" id="privacy">
+    <h2>個人情報の取り扱い</h2>
+    <div class="policy">
+      <p><b>お預かりする情報</b>：お名前、電話番号、住所、メールアドレス、見積もりの回答内容</p>
+      <p><b>使う目的</b>：現地調査、正式なお見積書の作成と送付、お見積もりについてのご連絡。営業の電話や訪問には使いません。</p>
+      <p><b>第三者への提供</b>：法令に基づく場合を除き、ご本人の同意なく第三者に提供しません。</p>
+      <p><b>保管</b>：Googleのサービスを使って保存し、煌真建装が管理します。</p>
+      <p><b>このページの記録</b>：どのチラシから来たか、スマホかパソコンか、見積もりの回答内容を、お名前などと結びつけずに記録しています。</p>
+      <p><b>確認・訂正・削除</b>：ご希望の方は、煌真建装（TEL 090-3857-8745）までご連絡ください。</p>
+    </div>
   </section>
 
   <footer>
@@ -470,9 +490,11 @@ document.getElementById("form").addEventListener("submit", e=>{
   if (!name || !tel || !addr){ msg.textContent = "お名前・電話番号・住所を入力してください。"; return; }
   const recv = frecv.value, mail = fmail.value.trim();
   if (recv === "メール" && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(mail)){ msg.textContent = "メールで受け取る場合は、メールアドレスを入力してください。郵送でよければ、受け取り方を「郵送」にしてください。"; return; }
+  if (!fagree.checked || !fenter.checked){ msg.textContent = "「個人情報の取り扱い」と「敷地に入ること」の2つにチェックを入れてください。"; return; }
   msg.textContent = "";
   const est = lastEstimate || {};
-  sendLog({ type:"reserve", name, tel, addr, day: recv === "メール" ? `メール：${mail}` : "郵送", tsubo: est.tsubo || "", paint: est.paint || "",
+  const isBot = fsite.value.trim() !== "";
+  if (!isBot) sendLog({ type:"reserve", consent:"個人情報・敷地立ち入りに同意", name, tel, addr, day: recv === "メール" ? `メール：${mail}` : "郵送", tsubo: est.tsubo || "", paint: est.paint || "",
     range: est.lo ? `${est.lo}〜${est.hi}` : "",
     floors: est.floors || "", wall: est.wall || "", symptom: est.symptom || "", roof: est.roof || "", balcony: est.balcony || "" });
   const safe = name.replace(/[&<>"']/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
